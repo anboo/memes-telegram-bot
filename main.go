@@ -1,0 +1,76 @@
+package main
+
+import (
+	"context"
+	"log"
+	"os"
+
+	"memes-bot/cmd"
+	"memes-bot/handler"
+	"memes-bot/handler/welcome"
+	"memes-bot/importer"
+	"memes-bot/storage/mem"
+	"memes-bot/storage/user"
+
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/pressly/goose/v3"
+	"github.com/rs/zerolog"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+)
+
+func main() {
+	ctx := context.Background()
+
+	//dsn := os.Getenv("DB_DSN")
+	dsn := "host=localhost user=postgres password=pass dbname=db port=5432 sslmode=disable"
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	if err != nil {
+		panic(err)
+	}
+
+	sqlDB, err := db.DB()
+	if err != nil {
+		panic(err)
+	}
+
+	err = goose.Up(sqlDB, "./migrations")
+	if err != nil {
+		panic(err)
+	}
+
+	bot, err := tgbotapi.NewBotAPI(os.Getenv("TELEGRAM_BOT_TOKEN"))
+	if err != nil {
+		log.Panic(err)
+	}
+	bot.Debug = true
+	log.Printf("Authorized on account %s", bot.Self.UserName)
+
+	l := zerolog.New(os.Stdout)
+	vk := importer.NewVkImporter(&l)
+
+	memesRepository := mem.NewRepository(db)
+	usersRepository := user.NewRepository(db)
+
+	router := handler.NewRouter(welcome.NewHandler(bot))
+
+	collector := importer.NewCollector(memesRepository, []importer.Importer{vk})
+
+	var arg string
+	if len(os.Args) > 1 {
+		arg = os.Args[1]
+	}
+
+	switch arg {
+	case "import_memes":
+		err := cmd.NewImportMemesCmd(collector).Execute(ctx)
+		if err != nil {
+			panic(err)
+		}
+	default:
+		err := cmd.NewStartBotCmd(bot, usersRepository, router, &l).Execute(ctx)
+		if err != nil {
+			panic(err)
+		}
+	}
+}
