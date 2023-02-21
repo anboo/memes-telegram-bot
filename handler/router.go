@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"context"
+
 	"github.com/pkg/errors"
 )
 
@@ -14,10 +16,10 @@ func NewRouter(handlers ...Handler) *Router {
 	}
 }
 
-func (r *Router) Handle(ctx BotContext) error {
+func (r *Router) Handle(ctx context.Context, botContext BotContext) error {
 	for _, h := range r.handlers {
-		if h.Support(ctx) {
-			return h.Handle(ctx)
+		if h.Support(botContext) {
+			return h.Handle(ctx, botContext)
 		}
 	}
 	return errors.New("not found handler")

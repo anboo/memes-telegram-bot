@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"context"
+
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
@@ -11,5 +13,5 @@ type BotContext struct {
 
 type Handler interface {
 	Support(BotContext) bool
-	Handle(BotContext) error
+	Handle(context.Context, BotContext) error
 }

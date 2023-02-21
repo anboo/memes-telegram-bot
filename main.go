@@ -8,6 +8,7 @@ import (
 
 	"memes-bot/cmd"
 	"memes-bot/handler"
+	"memes-bot/handler/send_mem"
 	"memes-bot/handler/welcome"
 	"memes-bot/importer"
 	"memes-bot/storage/mem"
@@ -54,7 +55,10 @@ func main() {
 	memesRepository := mem.NewRepository(db)
 	usersRepository := user.NewRepository(db)
 
-	router := handler.NewRouter(welcome.NewHandler(bot))
+	router := handler.NewRouter(
+		welcome.NewHandler(bot),
+		send_mem.NewHandler(bot, memesRepository, &l),
+	)
 
 	collector := importer.NewCollector(memesRepository, []importer.Importer{vk})
 

@@ -41,7 +41,7 @@ func (c *StartBotCmd) Execute(ctx context.Context) error {
 			}
 
 			botContext := handler.BotContext{Update: update, IsNewUser: !isUpdated}
-			err = c.router.Handle(botContext)
+			err = c.router.Handle(ctx, botContext)
 			if err != nil {
 				c.l.Err(err).Msg("error router")
 			}

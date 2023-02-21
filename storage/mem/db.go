@@ -20,6 +20,15 @@ func NewRepository(db *gorm.DB) *Repository {
 	}
 }
 
+func (r *Repository) FindRelevantMemForUser(ctx context.Context, u user.User) (Mem, error) {
+	var res Mem
+	err := r.db.WithContext(ctx).Order("RANDOM()").First(&res).Error
+	if err != nil {
+		return Mem{}, errors.Wrap(err, "find relevant mem rep")
+	}
+	return res, nil
+}
+
 func (r *Repository) UpsertMem(ctx context.Context, mem Mem) (Mem, error) {
 	err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		var m Mem
