@@ -1,6 +1,8 @@
 package mem
 
 import (
+	"time"
+
 	"github.com/google/uuid"
 )
 
@@ -12,6 +14,7 @@ type Mem struct {
 	SourceFrom string
 	Img        string
 	Rating     int
+	CreatedAt  time.Time
 }
 
 func (Mem) TableName() string {
@@ -27,5 +30,6 @@ func NewMem(externalID string, text string, source string, sourceFrom string, im
 		SourceFrom: sourceFrom,
 		Img:        img,
 		Rating:     0,
+		CreatedAt:  time.Now(),
 	}
 }

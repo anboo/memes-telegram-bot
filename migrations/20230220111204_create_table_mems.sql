@@ -8,6 +8,7 @@ CREATE TABLE memes (
    source_from VARCHAR(255) NOT NULL,
    img VARCHAR(255) NOT NULL,
    rating INT DEFAULT 0,
+   created_at timestamp,
    PRIMARY KEY(id)
 );
 -- +goose StatementEnd

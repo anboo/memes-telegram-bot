@@ -9,6 +9,8 @@ import (
 )
 
 type BotContext struct {
+	FromID int64
+
 	Update    tgbotapi.Update
 	User      user.User
 	IsNewUser bool

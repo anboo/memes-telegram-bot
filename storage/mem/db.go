@@ -71,7 +71,7 @@ func (r *Repository) FindRelevantMemForUser(ctx context.Context, u user.User) (M
 			WHERE v2.user_id = v.user_id
 			  AND v2.mem_id IN (SELECT mm.mem_id FROM my_memes mm)
 		)
-		ORDER BY mu.count_mutual_votes DESC, v.vote DESC, v.created_at DESC, m.id DESC
+		ORDER BY mu.count_mutual_votes DESC, v.vote DESC, v.created_at DESC, m.created_at DESC
 		LIMIT 1
 	`, sql.Named("userId", u.ID)).Scan(&res).Error
 

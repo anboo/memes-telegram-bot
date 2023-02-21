@@ -23,10 +23,9 @@ func (h Handler) Support(c *handler.BotContext) bool {
 
 func (h Handler) Handle(ctx context.Context, c *handler.BotContext) error {
 	msg := tgbotapi.NewMessage(
-		c.Update.Message.Chat.ID,
+		c.FromID,
 		"Вам нужно оценить минимум 20 мемов, прежде чем рекомендации станут более менее релевантными.",
 	)
-	msg.ReplyToMessageID = c.Update.Message.MessageID
 
 	_, err := h.bot.Send(msg)
 

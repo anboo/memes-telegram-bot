@@ -33,26 +33,36 @@ func (c *StartBotCmd) Execute(ctx context.Context) error {
 	updates := c.bot.GetUpdatesChan(u)
 
 	for update := range updates {
-		var telegramID string
-
-		switch {
-		case update.Message != nil:
-			telegramID = strconv.Itoa(int(update.Message.From.ID))
-		case update.CallbackQuery != nil:
-			telegramID = strconv.Itoa(int(update.CallbackQuery.From.ID))
+		select {
 		default:
-			continue
-		}
+			var (
+				telegramID string
+				fromID     int64
+			)
 
-		user, isUpdated, err := c.userRepository.Upsert(ctx, *user.NewUser(telegramID))
-		if err != nil {
-			c.l.Err(err).Interface("update", update).Msg("try upsert user")
-		}
+			switch {
+			case update.Message != nil:
+				fromID = update.Message.From.ID
+				telegramID = strconv.Itoa(int(fromID))
+			case update.CallbackQuery != nil:
+				fromID = update.CallbackQuery.From.ID
+				telegramID = strconv.Itoa(int(fromID))
+			default:
+				continue
+			}
 
-		botContext := handler.BotContext{Update: update, IsNewUser: !isUpdated, User: user}
-		err = c.router.Handle(ctx, botContext)
-		if err != nil {
-			c.l.Err(err).Msg("error router")
+			user, isUpdated, err := c.userRepository.Upsert(ctx, *user.NewUser(telegramID))
+			if err != nil {
+				c.l.Err(err).Interface("update", update).Msg("try upsert user")
+			}
+
+			botContext := handler.BotContext{FromID: fromID, Update: update, IsNewUser: !isUpdated, User: user}
+			err = c.router.Handle(ctx, botContext)
+			if err != nil {
+				c.l.Err(err).Msg("error router")
+			}
+		case <-ctx.Done():
+			return nil
 		}
 	}
 
