@@ -1,6 +1,17 @@
 version: '3'
 
 services:
+  go-bot:
+    build: .
+    restart: always
+    env_file:
+      - .env
+  import:
+    build: .
+    restart: "no"
+    env_file:
+      - .env
+    entrypoint: ["./bot", "import_memes"]
   db:
     image: postgres:15
     environment:
