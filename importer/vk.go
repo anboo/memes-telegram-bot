@@ -67,6 +67,10 @@ func (i *VkImporter) startParsing(ctx context.Context, ch chan mem.Mem, stop cha
 					continue
 				}
 
+				if BlackListed(item.Text) {
+					continue
+				}
+
 				sizes := item.Attachments[0].Photo.Sizes
 				ch <- *mem.NewMem(strconv.Itoa(item.ID), item.Text, "vk", g, sizes[len(sizes)-1].URL)
 			}

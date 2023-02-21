@@ -37,6 +37,7 @@ func (h Handler) Handle(ctx context.Context, c *handler.BotContext) error {
 	}
 
 	p := tgbotapi.NewPhoto(c.Update.FromChat().ID, tgbotapi.FileURL(mem.Img))
+	p.Caption = mem.Text
 	p.ReplyMarkup = tgbotapi.NewInlineKeyboardMarkup(
 		tgbotapi.NewInlineKeyboardRow(
 			tgbotapi.NewInlineKeyboardButtonData("👍", "up_"+mem.ID),
