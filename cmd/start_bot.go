@@ -33,18 +33,26 @@ func (c *StartBotCmd) Execute(ctx context.Context) error {
 	updates := c.bot.GetUpdatesChan(u)
 
 	for update := range updates {
-		if update.Message != nil {
-			telegramID := strconv.Itoa(int(update.Message.From.ID))
-			user, isUpdated, err := c.userRepository.Upsert(ctx, *user.NewUser(telegramID))
-			if err != nil {
-				c.l.Err(err).Interface("update", update).Msg("try upsert user")
-			}
+		var telegramID string
 
-			botContext := handler.BotContext{Update: update, IsNewUser: !isUpdated, User: user}
-			err = c.router.Handle(ctx, botContext)
-			if err != nil {
-				c.l.Err(err).Msg("error router")
-			}
+		switch {
+		case update.Message != nil:
+			telegramID = strconv.Itoa(int(update.Message.From.ID))
+		case update.CallbackQuery != nil:
+			telegramID = strconv.Itoa(int(update.CallbackQuery.From.ID))
+		default:
+			continue
+		}
+
+		user, isUpdated, err := c.userRepository.Upsert(ctx, *user.NewUser(telegramID))
+		if err != nil {
+			c.l.Err(err).Interface("update", update).Msg("try upsert user")
+		}
+
+		botContext := handler.BotContext{Update: update, IsNewUser: !isUpdated, User: user}
+		err = c.router.Handle(ctx, botContext)
+		if err != nil {
+			c.l.Err(err).Msg("error router")
 		}
 	}
 

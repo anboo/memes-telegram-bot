@@ -18,7 +18,11 @@ func NewRepository(db *gorm.DB) *Repository {
 
 func (r *Repository) Save(ctx context.Context, v Vote) error {
 	err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		return tx.Clauses(clause.OnConflict{DoNothing: true}).Create(&v).Error
+		return tx.Clauses(
+			clause.OnConflict{
+				UpdateAll: true,
+				Columns:   []clause.Column{{Name: "user_id"}, {Name: "mem_id"}},
+			}).Create(&v).Error
 	})
 	if err != nil {
 		return errors.Wrap(err, "save vote")

@@ -27,7 +27,7 @@ func NewHandler(bot *tgbotapi.BotAPI, memRepository *mem.Repository, log *zerolo
 }
 
 func (h Handler) Support(c handler.BotContext) bool {
-	return true
+	return c.Update.CallbackQuery == nil //no button
 }
 
 func (h Handler) Handle(ctx context.Context, c handler.BotContext) error {
