@@ -52,7 +52,7 @@ func main() {
 	log.Printf("Authorized on account %s", bot.Self.UserName)
 
 	l := zerolog.New(os.Stdout)
-	vk := importer.NewVkImporter(&l)
+	vk := importer.NewVkImporter(os.Getenv("VK_ACCESS_TOKEN"), &l)
 
 	memesRepository := mem.NewRepository(db)
 	usersRepository := user.NewRepository(db)

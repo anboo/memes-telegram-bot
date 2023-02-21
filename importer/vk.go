@@ -21,12 +21,14 @@ var Groups = []string{
 }
 
 type VkImporter struct {
-	l *zerolog.Logger
+	accessToken string
+	l           *zerolog.Logger
 }
 
-func NewVkImporter(l *zerolog.Logger) *VkImporter {
+func NewVkImporter(accessToken string, l *zerolog.Logger) *VkImporter {
 	return &VkImporter{
-		l: l,
+		accessToken: accessToken,
+		l:           l,
 	}
 }
 
@@ -42,7 +44,7 @@ func (i *VkImporter) Import(ctx context.Context) (chan mem.Mem, chan struct{}) {
 }
 
 func (i *VkImporter) startParsing(ctx context.Context, ch chan mem.Mem, stop chan struct{}) {
-	vk := api.NewVK("4fb4ae9e4fb4ae9e4fb4ae9e144fcc4e8544fb44fb4ae9e2ebb0c3da28feb0386eb89b5")
+	vk := api.NewVK(i.accessToken)
 
 	for _, g := range Groups {
 		select {
