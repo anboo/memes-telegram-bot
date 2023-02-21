@@ -5,7 +5,6 @@ import (
 
 	"memes-bot/handler"
 	"memes-bot/storage/mem"
-	"memes-bot/storage/user"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/pkg/errors"
@@ -31,7 +30,7 @@ func (h Handler) Support(c *handler.BotContext) bool {
 }
 
 func (h Handler) Handle(ctx context.Context, c *handler.BotContext) error {
-	mem, err := h.memRepository.FindRelevantMemForUser(ctx, user.User{})
+	mem, err := h.memRepository.FindRelevantMemForUser(ctx, c.User)
 	if err != nil {
 		return errors.Wrap(err, "send mem handler")
 	}
@@ -51,6 +50,11 @@ func (h Handler) Handle(ctx context.Context, c *handler.BotContext) error {
 	_, err = h.bot.Send(p)
 	if err != nil {
 		return errors.Wrap(err, "try send send mem message")
+	}
+
+	err = h.memRepository.ReserveNewMem(ctx, c.User, mem)
+	if err != nil {
+		return errors.Wrap(err, "reserve mem")
 	}
 
 	return nil
