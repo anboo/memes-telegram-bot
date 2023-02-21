@@ -20,6 +20,17 @@ func NewRepository(db *gorm.DB) *Repository {
 	}
 }
 
+func (r *Repository) Find(ctx context.Context, id string) (Mem, error) {
+	var res Mem
+
+	err := r.db.WithContext(ctx).First(&res, "id = ?", id).Error
+	if err != nil {
+		return Mem{}, errors.Wrap(err, "try find mem rep")
+	}
+
+	return res, nil
+}
+
 func (r *Repository) FindRelevantMemForUser(ctx context.Context, u user.User) (Mem, error) {
 	var res Mem
 	err := r.db.WithContext(ctx).Order("RANDOM()").First(&res).Error
@@ -52,6 +63,16 @@ func (r *Repository) UpsertMem(ctx context.Context, mem Mem) (Mem, error) {
 	})
 
 	return mem, err
+}
+
+func (r *Repository) UpdateRating(ctx context.Context, memId string, diff int) error {
+	err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		return tx.Where("id = ?", memId).Update("rating", gorm.Expr("rating + ?", diff)).Error
+	})
+	if err != nil {
+		return errors.Wrap(err, "update rating")
+	}
+	return nil
 }
 
 func (r *Repository) ReserveNewMem(ctx context.Context, user user.User, mem Mem) error {

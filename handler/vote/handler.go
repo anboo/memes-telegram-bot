@@ -48,6 +48,10 @@ func (h Handler) Support(context handler.BotContext) bool {
 
 func (h Handler) Handle(ctx context.Context, botContext handler.BotContext) error {
 	data := strings.Split(botContext.Update.CallbackQuery.Data, "_")
+	if len(data) < 2 {
+		return errors.New("incorrect data")
+	}
+
 	prefix, memId := data[0], data[1]
 
 	rating := 0
@@ -60,7 +64,17 @@ func (h Handler) Handle(ctx context.Context, botContext handler.BotContext) erro
 		rating = -2
 	}
 
-	err := h.voteRepository.Save(ctx, *vote.NewVote(memId, botContext.User.ID, rating))
+	meme, err := h.memRepository.Find(ctx, memId)
+	if err != nil {
+		return errors.Wrap(err, "vote handler find meme")
+	}
+
+	err = h.memRepository.UpdateRating(ctx, meme.ID, rating)
+	if err != nil {
+		return errors.Wrap(err, "vote handler try update mem rating")
+	}
+
+	err = h.voteRepository.Save(ctx, *vote.NewVote(memId, botContext.User.ID, rating))
 	if err != nil {
 		return errors.Wrap(err, "vote handler save vote")
 	}
