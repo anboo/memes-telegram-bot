@@ -17,11 +17,11 @@ func NewHandler(bot *tgbotapi.BotAPI) *Handler {
 	return &Handler{bot: bot}
 }
 
-func (h Handler) Support(c handler.BotContext) bool {
+func (h Handler) Support(c *handler.BotContext) bool {
 	return c.IsNewUser
 }
 
-func (h Handler) Handle(ctx context.Context, c handler.BotContext) error {
+func (h Handler) Handle(ctx context.Context, c *handler.BotContext) error {
 	msg := tgbotapi.NewMessage(
 		c.Update.Message.Chat.ID,
 		"Вам нужно оценить минимум 20 мемов, прежде чем рекомендации станут более менее релевантными.",

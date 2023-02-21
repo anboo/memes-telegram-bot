@@ -60,8 +60,8 @@ func main() {
 
 	router := handler.NewRouter(
 		welcome.NewHandler(bot),
-		send_mem.NewHandler(bot, memesRepository, &l),
 		vote_handler.NewHandler(bot, memesRepository, voteRepository, &l),
+		send_mem.NewHandler(bot, memesRepository, &l),
 	)
 
 	collector := importer.NewCollector(memesRepository, []importer.Importer{vk})

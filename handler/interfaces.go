@@ -12,9 +12,11 @@ type BotContext struct {
 	Update    tgbotapi.Update
 	User      user.User
 	IsNewUser bool
+
+	StopPropagation bool
 }
 
 type Handler interface {
-	Support(BotContext) bool
-	Handle(context.Context, BotContext) error
+	Support(*BotContext) bool
+	Handle(context.Context, *BotContext) error
 }

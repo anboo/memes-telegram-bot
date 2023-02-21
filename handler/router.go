@@ -17,10 +17,23 @@ func NewRouter(handlers ...Handler) *Router {
 }
 
 func (r *Router) Handle(ctx context.Context, botContext BotContext) error {
+	var found bool
+
 	for _, h := range r.handlers {
-		if h.Support(botContext) {
-			return h.Handle(ctx, botContext)
+		if h.Support(&botContext) {
+			found = true
+			err := h.Handle(ctx, &botContext)
+			if err != nil {
+				return errors.Wrap(err, "handler")
+			}
+			if botContext.StopPropagation {
+				return nil
+			}
 		}
 	}
-	return errors.New("not found handler")
+
+	if !found {
+		return errors.New("not found handler")
+	}
+	return nil
 }

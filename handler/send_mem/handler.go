@@ -26,11 +26,11 @@ func NewHandler(bot *tgbotapi.BotAPI, memRepository *mem.Repository, log *zerolo
 	}
 }
 
-func (h Handler) Support(c handler.BotContext) bool {
-	return c.Update.CallbackQuery == nil //no button
+func (h Handler) Support(c *handler.BotContext) bool {
+	return true
 }
 
-func (h Handler) Handle(ctx context.Context, c handler.BotContext) error {
+func (h Handler) Handle(ctx context.Context, c *handler.BotContext) error {
 	mem, err := h.memRepository.FindRelevantMemForUser(ctx, user.User{})
 	if err != nil {
 		return errors.Wrap(err, "send mem handler")
@@ -41,6 +41,8 @@ func (h Handler) Handle(ctx context.Context, c handler.BotContext) error {
 		tgbotapi.NewInlineKeyboardRow(
 			tgbotapi.NewInlineKeyboardButtonData("👍", "up_"+mem.ID),
 			tgbotapi.NewInlineKeyboardButtonData("👎", "down_"+mem.ID),
+		),
+		tgbotapi.NewInlineKeyboardRow(
 			tgbotapi.NewInlineKeyboardButtonData("🆘", "sos_"+mem.ID),
 		),
 	)

@@ -67,7 +67,7 @@ func (r *Repository) UpsertMem(ctx context.Context, mem Mem) (Mem, error) {
 
 func (r *Repository) UpdateRating(ctx context.Context, memId string, diff int) error {
 	err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		return tx.Where("id = ?", memId).Update("rating", gorm.Expr("rating + ?", diff)).Error
+		return tx.Model(Mem{}).Where("id = ?", memId).UpdateColumn("rating", gorm.Expr("rating + ?", diff)).Error
 	})
 	if err != nil {
 		return errors.Wrap(err, "update rating")
