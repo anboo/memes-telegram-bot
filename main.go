@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"os"
+	"os/signal"
 
 	"memes-bot/cmd"
 	"memes-bot/handler"
@@ -20,7 +21,8 @@ import (
 )
 
 func main() {
-	ctx := context.Background()
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
+	defer stop()
 
 	//dsn := os.Getenv("DB_DSN")
 	dsn := "host=localhost user=postgres password=pass dbname=db port=5432 sslmode=disable"
