@@ -9,10 +9,12 @@ import (
 	"memes-bot/cmd"
 	"memes-bot/handler"
 	"memes-bot/handler/send_mem"
+	vote_handler "memes-bot/handler/vote"
 	"memes-bot/handler/welcome"
 	"memes-bot/importer"
 	"memes-bot/storage/mem"
 	"memes-bot/storage/user"
+	"memes-bot/storage/vote"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/pressly/goose/v3"
@@ -54,10 +56,12 @@ func main() {
 
 	memesRepository := mem.NewRepository(db)
 	usersRepository := user.NewRepository(db)
+	voteRepository := vote.NewRepository(db)
 
 	router := handler.NewRouter(
 		welcome.NewHandler(bot),
 		send_mem.NewHandler(bot, memesRepository, &l),
+		vote_handler.NewHandler(bot, memesRepository, voteRepository, &l),
 	)
 
 	collector := importer.NewCollector(memesRepository, []importer.Importer{vk})

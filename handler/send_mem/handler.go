@@ -36,21 +36,19 @@ func (h Handler) Handle(ctx context.Context, c handler.BotContext) error {
 		return errors.Wrap(err, "send mem handler")
 	}
 
-	msg := tgbotapi.NewMessage(c.Update.FromChat().ID, mem.Img)
-	_, err = h.bot.Send(msg)
-	if err != nil {
-		return errors.Wrap(err, "send mem handler bot send")
-	}
-
 	p := tgbotapi.NewPhoto(c.Update.FromChat().ID, tgbotapi.FileURL(mem.Img))
 	p.ReplyMarkup = tgbotapi.NewInlineKeyboardMarkup(
 		tgbotapi.NewInlineKeyboardRow(
-			tgbotapi.NewInlineKeyboardButtonURL("👍", "up_"+mem.ID),
+			tgbotapi.NewInlineKeyboardButtonData("👍", "up_"+mem.ID),
 			tgbotapi.NewInlineKeyboardButtonData("👎", "down_"+mem.ID),
 			tgbotapi.NewInlineKeyboardButtonData("🆘", "sos_"+mem.ID),
 		),
 	)
-	h.bot.Send(p)
+
+	_, err = h.bot.Send(p)
+	if err != nil {
+		return errors.Wrap(err, "try send send mem message")
+	}
 
 	return nil
 }

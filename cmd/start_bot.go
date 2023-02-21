@@ -35,12 +35,12 @@ func (c *StartBotCmd) Execute(ctx context.Context) error {
 	for update := range updates {
 		if update.Message != nil {
 			telegramID := strconv.Itoa(int(update.Message.From.ID))
-			_, isUpdated, err := c.userRepository.Upsert(ctx, *user.NewUser(telegramID))
+			user, isUpdated, err := c.userRepository.Upsert(ctx, *user.NewUser(telegramID))
 			if err != nil {
 				c.l.Err(err).Interface("update", update).Msg("try upsert user")
 			}
 
-			botContext := handler.BotContext{Update: update, IsNewUser: !isUpdated}
+			botContext := handler.BotContext{Update: update, IsNewUser: !isUpdated, User: user}
 			err = c.router.Handle(ctx, botContext)
 			if err != nil {
 				c.l.Err(err).Msg("error router")
