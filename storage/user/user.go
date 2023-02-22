@@ -9,6 +9,8 @@ import (
 type User struct {
 	ID         string
 	TelegramID string
+	Age        int
+	Sex        string
 	CreatedAt  time.Time
 }
 

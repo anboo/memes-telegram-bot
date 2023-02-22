@@ -16,17 +16,17 @@ func NewRouter(handlers ...Handler) *Router {
 	}
 }
 
-func (r *Router) Handle(ctx context.Context, botContext BotContext) error {
+func (r *Router) Handle(ctx context.Context, request BotRequest) error {
 	var found bool
 
 	for _, h := range r.handlers {
-		if h.Support(&botContext) {
+		if h.Support(&request) {
 			found = true
-			err := h.Handle(ctx, &botContext)
+			err := h.Handle(ctx, &request)
 			if err != nil {
 				return errors.Wrap(err, "handler")
 			}
-			if botContext.StopPropagation {
+			if request.StopPropagation {
 				return nil
 			}
 		}

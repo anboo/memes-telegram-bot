@@ -28,9 +28,9 @@ func NewStartBotCmd(bot *tgbotapi.BotAPI, userRepository *user.Repository, route
 }
 
 func (c *StartBotCmd) Execute(ctx context.Context) error {
-	u := tgbotapi.NewUpdate(0)
-	u.Timeout = 60
-	updates := c.bot.GetUpdatesChan(u)
+	config := tgbotapi.NewUpdate(0)
+	config.Timeout = 60
+	updates := c.bot.GetUpdatesChan(config)
 
 	for update := range updates {
 		select {
@@ -51,12 +51,16 @@ func (c *StartBotCmd) Execute(ctx context.Context) error {
 				continue
 			}
 
-			user, isUpdated, err := c.userRepository.Upsert(ctx, *user.NewUser(telegramID))
+			isUpdated := true
+			u, err := c.userRepository.ByTelegramID(ctx, telegramID)
 			if err != nil {
-				c.l.Err(err).Interface("update", update).Msg("try upsert user")
+				u, isUpdated, err = c.userRepository.Upsert(ctx, *user.NewUser(telegramID))
+				if err != nil {
+					c.l.Err(err).Interface("update", update).Msg("try upsert update")
+				}
 			}
 
-			botContext := handler.BotContext{FromID: fromID, Update: update, IsNewUser: !isUpdated, User: user}
+			botContext := handler.BotRequest{FromID: fromID, Update: update, IsNewUser: !isUpdated, User: u}
 			err = c.router.Handle(ctx, botContext)
 			if err != nil {
 				c.l.Err(err).Msg("error router")

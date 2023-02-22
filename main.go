@@ -8,6 +8,7 @@ import (
 
 	"memes-bot/cmd"
 	"memes-bot/handler"
+	"memes-bot/handler/choose_sex"
 	"memes-bot/handler/send_mem"
 	vote_handler "memes-bot/handler/vote"
 	"memes-bot/handler/welcome"
@@ -61,6 +62,7 @@ func main() {
 	router := handler.NewRouter(
 		welcome.NewHandler(bot),
 		vote_handler.NewHandler(bot, memesRepository, voteRepository, &l),
+		choose_sex.NewHandler(bot, usersRepository),
 		send_mem.NewHandler(bot, memesRepository, &l),
 	)
 

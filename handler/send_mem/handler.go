@@ -25,17 +25,17 @@ func NewHandler(bot *tgbotapi.BotAPI, memRepository *mem.Repository, log *zerolo
 	}
 }
 
-func (h Handler) Support(c *handler.BotContext) bool {
+func (h Handler) Support(r *handler.BotRequest) bool {
 	return true
 }
 
-func (h Handler) Handle(ctx context.Context, c *handler.BotContext) error {
-	mem, err := h.memRepository.FindRelevantMemForUser(ctx, c.User)
+func (h Handler) Handle(ctx context.Context, request *handler.BotRequest) error {
+	mem, err := h.memRepository.FindRelevantMemForUser(ctx, request.User)
 	if err != nil {
 		return errors.Wrap(err, "send mem handler")
 	}
 
-	p := tgbotapi.NewPhoto(c.Update.FromChat().ID, tgbotapi.FileURL(mem.Img))
+	p := tgbotapi.NewPhoto(request.Update.FromChat().ID, tgbotapi.FileURL(mem.Img))
 	p.Caption = mem.Text
 	p.ReplyMarkup = tgbotapi.NewInlineKeyboardMarkup(
 		tgbotapi.NewInlineKeyboardRow(
@@ -52,7 +52,7 @@ func (h Handler) Handle(ctx context.Context, c *handler.BotContext) error {
 		return errors.Wrap(err, "try send send mem message")
 	}
 
-	err = h.memRepository.ReserveNewMem(ctx, c.User, mem)
+	err = h.memRepository.ReserveNewMem(ctx, request.User, mem)
 	if err != nil {
 		return errors.Wrap(err, "reserve mem")
 	}

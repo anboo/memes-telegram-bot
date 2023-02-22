@@ -8,7 +8,7 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
-type BotContext struct {
+type BotRequest struct {
 	FromID int64
 
 	Update    tgbotapi.Update
@@ -19,6 +19,6 @@ type BotContext struct {
 }
 
 type Handler interface {
-	Support(*BotContext) bool
-	Handle(context.Context, *BotContext) error
+	Support(*BotRequest) bool
+	Handle(context.Context, *BotRequest) error
 }

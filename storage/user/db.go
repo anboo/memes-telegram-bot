@@ -18,12 +18,20 @@ func NewRepository(db *gorm.DB) *Repository {
 	}
 }
 
+func (r *Repository) ByTelegramID(ctx context.Context, telegramID string) (User, error) {
+	var user User
+	err := r.db.WithContext(ctx).Where("telegram_id = ?", telegramID).First(&user).Error
+	if err != nil {
+		return User{}, errors.Wrap(err, "try find user by telegram id")
+	}
+	return user, nil
+}
+
 func (r *Repository) Upsert(ctx context.Context, u User) (User, bool, error) {
 	var isUpdated bool
 
 	err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		var user User
-		err := tx.Where("telegram_id = ?", u.TelegramID).First(&user).Error
+		user, err := r.ByTelegramID(ctx, u.TelegramID)
 
 		switch {
 		case errors.Is(err, gorm.ErrRecordNotFound):
@@ -34,7 +42,7 @@ func (r *Repository) Upsert(ctx context.Context, u User) (User, bool, error) {
 		case err != nil:
 			return errors.Wrap(err, "fail fetch")
 		default:
-			err = tx.Where("id = ?", u.ID).Updates(u).Error
+			err = tx.Model(user).Updates(u).Error
 			if err != nil {
 				return errors.Wrap(err, "fail update")
 			}
