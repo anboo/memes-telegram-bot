@@ -14,10 +14,12 @@ var Groups = []string{
 	"borsch",
 	"agil_vk",
 	"fuck_humor",
-	"leprazo",
-	"s_arcazm",
 	"in.humour",
 	"dzenpub",
+	"mhk",
+	"dobriememes",
+	"dayvinchik",
+	"sciencemem",
 }
 
 type VkImporter struct {
@@ -64,7 +66,7 @@ func (i *VkImporter) startParsing(ctx context.Context, ch chan mem.Mem, stop cha
 			}
 
 			for _, item := range res.Items {
-				if len(item.Attachments) == 0 ||
+				if len(item.Attachments) != 1 ||
 					len(item.Attachments[0].Photo.Sizes) == 0 {
 					continue
 				}

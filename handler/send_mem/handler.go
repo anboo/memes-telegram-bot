@@ -30,31 +30,31 @@ func (h Handler) Support(r *handler.BotRequest) bool {
 }
 
 func (h Handler) Handle(ctx context.Context, request *handler.BotRequest) error {
-	mem, err := h.memRepository.FindRelevantMemForUser(ctx, request.User)
+	m, err := h.memRepository.FindRelevantMemForUser(ctx, request.User)
 	if err != nil {
-		return errors.Wrap(err, "send mem handler")
+		return errors.Wrap(err, "send m handler")
 	}
 
-	p := tgbotapi.NewPhoto(request.Update.FromChat().ID, tgbotapi.FileURL(mem.Img))
-	p.Caption = mem.Text
+	p := tgbotapi.NewPhoto(request.Update.FromChat().ID, tgbotapi.FileURL(m.Img))
+	p.Caption = m.Text
 	p.ReplyMarkup = tgbotapi.NewInlineKeyboardMarkup(
 		tgbotapi.NewInlineKeyboardRow(
-			tgbotapi.NewInlineKeyboardButtonData("👍", "up_"+mem.ID),
-			tgbotapi.NewInlineKeyboardButtonData("👎", "down_"+mem.ID),
+			tgbotapi.NewInlineKeyboardButtonData("👍", "up_"+m.ID),
+			tgbotapi.NewInlineKeyboardButtonData("👎", "down_"+m.ID),
 		),
 		tgbotapi.NewInlineKeyboardRow(
-			tgbotapi.NewInlineKeyboardButtonData("🆘", "sos_"+mem.ID),
+			tgbotapi.NewInlineKeyboardButtonData("🆘", "sos_"+m.ID),
 		),
 	)
 
 	_, err = h.bot.Send(p)
 	if err != nil {
-		return errors.Wrap(err, "try send send mem message")
+		return errors.Wrap(err, "try send send m message")
 	}
 
-	err = h.memRepository.ReserveNewMem(ctx, request.User, mem)
+	err = h.memRepository.ReserveNewMem(ctx, request.User, m)
 	if err != nil {
-		return errors.Wrap(err, "reserve mem")
+		return errors.Wrap(err, "reserve m")
 	}
 
 	return nil

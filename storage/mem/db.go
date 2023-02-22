@@ -90,29 +90,17 @@ func (r *Repository) FindRelevantMemForUser(ctx context.Context, u user.User) (M
 	return res, nil
 }
 
-func (r *Repository) UpsertMem(ctx context.Context, mem Mem) (Mem, error) {
-	err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		var m Mem
-		err := tx.Where("id = ?", mem.ID).First(&m).Error
-
-		switch {
-		case errors.Is(err, gorm.ErrRecordNotFound):
-			err = tx.Clauses(clause.OnConflict{UpdateAll: true, Columns: []clause.Column{{Name: "external_id"}, {Name: "source"}}}).Create(mem).Error
-			if err != nil {
-				return errors.Wrap(err, "fail create")
-			}
-		case err != nil:
-			return errors.Wrap(err, "fail fetch")
-		default:
-			err = tx.Where("id = ?", mem.ID).Updates(mem).Error
-			if err != nil {
-				return errors.Wrap(err, "fail update")
-			}
+func (r *Repository) BatchCreate(ctx context.Context, memes []Mem) error {
+	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		err := tx.Clauses(clause.OnConflict{
+			UpdateAll: true,
+			Columns:   []clause.Column{{Name: "external_id"}, {Name: "source"}},
+		}).CreateInBatches(&memes, 100).Error
+		if err != nil {
+			return errors.Wrap(err, "batch insert memes")
 		}
 		return nil
 	})
-
-	return mem, err
 }
 
 func (r *Repository) UpdateRating(ctx context.Context, memId string, diff int) error {
