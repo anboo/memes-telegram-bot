@@ -8,6 +8,7 @@ import (
 
 	"memes-bot/cmd"
 	"memes-bot/handler"
+	"memes-bot/handler/choose_age"
 	"memes-bot/handler/choose_sex"
 	"memes-bot/handler/send_mem"
 	vote_handler "memes-bot/handler/vote"
@@ -63,6 +64,7 @@ func main() {
 		welcome.NewHandler(bot),
 		vote_handler.NewHandler(bot, memesRepository, voteRepository, &l),
 		choose_sex.NewHandler(bot, usersRepository),
+		choose_age.NewHandler(bot, usersRepository),
 		send_mem.NewHandler(bot, memesRepository, &l),
 	)
 
