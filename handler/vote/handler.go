@@ -14,9 +14,9 @@ import (
 )
 
 const (
-	UpPrefix   = "up_"
-	DownPrefix = "down_"
-	SosPrefix  = "sos_"
+	UpPrefix   = "up"
+	DownPrefix = "down"
+	SosPrefix  = "sos"
 )
 
 type Handler struct {
