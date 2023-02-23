@@ -83,7 +83,8 @@ func (r *Repository) FindRelevantMemForUser(ctx context.Context, u user.User) (M
 		return res, nil
 	}
 
-	err = r.db.WithContext(ctx).Order("RANDOM()").First(&res).Error
+	subQuery := r.db.Raw("SELECT mem_id FROM reserved_mem_users WHERE user_id = ?", u.ID)
+	err = r.db.WithContext(ctx).Where("id NOT IN (?) AND rating > -3", subQuery).Order("RANDOM()").First(&res).Error
 	if err != nil {
 		return Mem{}, errors.Wrap(err, "find relevant mem rep")
 	}
