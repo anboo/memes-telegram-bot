@@ -1,4 +1,4 @@
-FROM golang:1.19
+FROM golang:1.18
 ENV TELEGRAM_APITOKEN ""
 WORKDIR /usr/src/app
 COPY go.mod go.sum ./
