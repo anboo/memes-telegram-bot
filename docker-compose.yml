@@ -15,7 +15,7 @@ services:
   db:
     image: postgres:15
     environment:
-      POSTGRES_PASSWORD: "pass"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-pass}"
       POSTGRES_DB: "db"
     ports:
       - "5432:5432"
