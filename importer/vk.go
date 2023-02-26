@@ -53,7 +53,7 @@ func (i *VkImporter) startParsing(ctx context.Context, ch chan mem.Mem, stop cha
 		default:
 			params := map[string]interface{}{
 				"domain":       g,
-				"access_token": "4fb4ae9e4fb4ae9e4fb4ae9e144fcc4e8544fb44fb4ae9e2ebb0c3da28feb0386eb89b5",
+				"access_token": i.accessToken,
 				"v":            "5.131",
 				"count":        100,
 				"offset":       0,

@@ -4,10 +4,14 @@ services:
   go-bot:
     build: .
     restart: always
+    links:
+      - db
     env_file:
       - .env
   import:
     build: .
+    links:
+      - db
     restart: "no"
     env_file:
       - .env
