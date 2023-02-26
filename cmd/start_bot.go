@@ -40,21 +40,23 @@ func (c *StartBotCmd) Execute(ctx context.Context) error {
 				fromID     int64
 			)
 
+			var from *tgbotapi.User
 			switch {
 			case update.Message != nil:
-				fromID = update.Message.From.ID
-				telegramID = strconv.Itoa(int(fromID))
+				from = update.Message.From
 			case update.CallbackQuery != nil:
-				fromID = update.CallbackQuery.From.ID
-				telegramID = strconv.Itoa(int(fromID))
+				from = update.CallbackQuery.From
 			default:
 				continue
 			}
 
+			fromID = from.ID
+			telegramID = strconv.Itoa(int(fromID))
+
 			isUpdated := true
 			u, err := c.userRepository.ByTelegramID(ctx, telegramID)
 			if err != nil {
-				u, isUpdated, err = c.userRepository.Upsert(ctx, *user.NewUser(telegramID))
+				u, isUpdated, err = c.userRepository.Upsert(ctx, *user.NewUser(telegramID, from.UserName, from.FirstName+" "+from.LastName))
 				if err != nil {
 					c.l.Err(err).Interface("update", update).Msg("try upsert update")
 				}
