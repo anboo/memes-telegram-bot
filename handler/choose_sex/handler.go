@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"memes-bot/handler"
-	"memes-bot/storage/user"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/pkg/errors"
@@ -20,11 +19,11 @@ var (
 )
 
 type Handler struct {
-	bot            *tgbotapi.BotAPI
-	userRepository *user.Repository
+	bot            TelegramAPI
+	userRepository UserRepository
 }
 
-func NewHandler(bot *tgbotapi.BotAPI, userRepository *user.Repository) *Handler {
+func NewHandler(bot TelegramAPI, userRepository UserRepository) *Handler {
 	return &Handler{
 		bot:            bot,
 		userRepository: userRepository,

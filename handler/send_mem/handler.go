@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"memes-bot/handler"
-	"memes-bot/storage/mem"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/pkg/errors"
@@ -12,12 +11,12 @@ import (
 )
 
 type Handler struct {
-	bot           *tgbotapi.BotAPI
-	memRepository *mem.Repository
+	bot           TelegramAPI
+	memRepository MemRepository
 	log           *zerolog.Logger
 }
 
-func NewHandler(bot *tgbotapi.BotAPI, memRepository *mem.Repository, log *zerolog.Logger) *Handler {
+func NewHandler(bot TelegramAPI, memRepository MemRepository, log *zerolog.Logger) *Handler {
 	return &Handler{
 		bot:           bot,
 		memRepository: memRepository,
@@ -35,7 +34,7 @@ func (h Handler) Handle(ctx context.Context, request *handler.BotRequest) error 
 		return errors.Wrap(err, "send m handler")
 	}
 
-	p := tgbotapi.NewPhoto(request.Update.FromChat().ID, tgbotapi.FileURL(m.Img))
+	p := tgbotapi.NewPhoto(request.FromID, tgbotapi.FileURL(m.Img))
 	p.Caption = m.Text
 	p.ReplyMarkup = tgbotapi.NewInlineKeyboardMarkup(
 		tgbotapi.NewInlineKeyboardRow(

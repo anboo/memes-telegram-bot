@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"memes-bot/handler"
-	"memes-bot/storage/mem"
 	"memes-bot/storage/vote"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -20,16 +19,16 @@ const (
 )
 
 type Handler struct {
-	bot            *tgbotapi.BotAPI
-	memRepository  *mem.Repository
-	voteRepository *vote.Repository
+	bot            TelegramAPI
+	memRepository  MemRepository
+	voteRepository VoteRepository
 	logger         *zerolog.Logger
 }
 
 func NewHandler(
-	bot *tgbotapi.BotAPI,
-	memRepository *mem.Repository,
-	voteRepository *vote.Repository,
+	bot TelegramAPI,
+	memRepository MemRepository,
+	voteRepository VoteRepository,
 	logger *zerolog.Logger,
 ) *Handler {
 	return &Handler{
@@ -75,7 +74,7 @@ func (h Handler) Handle(ctx context.Context, request *handler.BotRequest) error 
 		return errors.Wrap(err, "vote handler try update mem rating")
 	}
 
-	err = h.voteRepository.Save(ctx, *vote.NewVote(memId, request.User.ID, rating))
+	err = h.voteRepository.Save(ctx, vote.NewVote(memId, request.User.ID, rating))
 	if err != nil {
 		return errors.Wrap(err, "vote handler save vote")
 	}
