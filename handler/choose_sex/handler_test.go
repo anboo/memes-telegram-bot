@@ -11,6 +11,89 @@ import (
 	"github.com/golang/mock/gomock"
 )
 
+func TestHandler_Support(t *testing.T) {
+	tests := []struct {
+		name string
+		args handler.BotRequest
+		want bool
+	}{
+		{
+			name: "success",
+			args: handler.BotRequest{
+				User: user.User{
+					Sex: "",
+				},
+			},
+			want: true,
+		},
+		{
+			name: "false_sex_already_filled",
+			args: handler.BotRequest{
+				User: user.User{
+					Sex: SexGirl,
+				},
+			},
+			want: false,
+		},
+		{
+			name: "true_filled_sex_chosen_sex_18",
+			args: handler.BotRequest{
+				User: user.User{
+					Sex: SexGirl,
+				},
+				Update: tgbotapi.Update{
+					CallbackQuery: &tgbotapi.CallbackQuery{
+						Data: ChooseSexPrefix + "_" + SexFish,
+					},
+				},
+			},
+			want: true,
+		},
+		{
+			name: "true_filled_sex_chosen_sex_18_25",
+			args: handler.BotRequest{
+				User: user.User{
+					Sex: SexGirl,
+				},
+				Update: tgbotapi.Update{
+					CallbackQuery: &tgbotapi.CallbackQuery{
+						Data: ChooseSexPrefix + "_" + SexMen,
+					},
+				},
+			},
+			want: true,
+		},
+		{
+			name: "true_filled_sex_chosen_sex_25",
+			args: handler.BotRequest{
+				User: user.User{
+					Sex: SexGirl,
+				},
+				Update: tgbotapi.Update{
+					CallbackQuery: &tgbotapi.CallbackQuery{
+						Data: ChooseSexPrefix + "_" + SexGirl,
+					},
+				},
+			},
+			want: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			h := NewHandler(NewMockTelegramAPI(ctrl), NewMockUserRepository(ctrl))
+			res := h.Support(&tt.args)
+
+			if res != tt.want {
+				t.Fatalf("expected want %v got %v", tt.want, res)
+			}
+		})
+	}
+}
+
 func TestHandler_Handle(t *testing.T) {
 	type fields struct {
 		bot            func(ctrl *gomock.Controller) TelegramAPI

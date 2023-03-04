@@ -10,6 +10,43 @@ import (
 	"github.com/golang/mock/gomock"
 )
 
+func TestHandler_Support(t *testing.T) {
+	tests := []struct {
+		name string
+		args handler.BotRequest
+		want bool
+	}{
+		{
+			name: "success",
+			args: handler.BotRequest{
+				IsNewUser: true,
+			},
+			want: true,
+		},
+		{
+			name: "false",
+			args: handler.BotRequest{
+				IsNewUser: false,
+			},
+			want: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			h := NewHandler(NewMockTelegramAPI(ctrl))
+			res := h.Support(&tt.args)
+
+			if res != tt.want {
+				t.Fatalf("expected want %v got %v", tt.want, res)
+			}
+		})
+	}
+}
+
 func TestHandler_Handle(t *testing.T) {
 	type fields struct {
 		bot func(ctrl *gomock.Controller) TelegramAPI

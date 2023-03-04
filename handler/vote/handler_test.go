@@ -13,6 +13,84 @@ import (
 	"github.com/rs/zerolog"
 )
 
+func TestHandler_Support(t *testing.T) {
+	tests := []struct {
+		name string
+		args handler.BotRequest
+		want bool
+	}{
+		{
+			name: "empty_request",
+			args: handler.BotRequest{},
+			want: false,
+		},
+		{
+			name: "empty_callback_query",
+			args: handler.BotRequest{
+				Update: tgbotapi.Update{},
+			},
+			want: false,
+		},
+		{
+			name: "empty_callback_data",
+			args: handler.BotRequest{
+				Update: tgbotapi.Update{
+					CallbackQuery: &tgbotapi.CallbackQuery{},
+				},
+			},
+			want: false,
+		},
+		{
+			name: "up_vote",
+			args: handler.BotRequest{
+				Update: tgbotapi.Update{
+					CallbackQuery: &tgbotapi.CallbackQuery{
+						Data: UpPrefix + "_792356d3-a7e1-4f67-a153-54a11849afc3",
+					},
+				},
+			},
+			want: true,
+		},
+		{
+			name: "down_vote",
+			args: handler.BotRequest{
+				Update: tgbotapi.Update{
+					CallbackQuery: &tgbotapi.CallbackQuery{
+						Data: DownPrefix + "_792356d3-a7e1-4f67-a153-54a11849afc3",
+					},
+				},
+			},
+			want: true,
+		},
+		{
+			name: "sos_vote",
+			args: handler.BotRequest{
+				Update: tgbotapi.Update{
+					CallbackQuery: &tgbotapi.CallbackQuery{
+						Data: SosPrefix + "_792356d3-a7e1-4f67-a153-54a11849afc3",
+					},
+				},
+			},
+			want: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			l := zerolog.Nop()
+			h := NewHandler(NewMockTelegramAPI(ctrl), NewMockMemRepository(ctrl), NewMockVoteRepository(ctrl), &l)
+			res := h.Support(&tt.args)
+
+			if res != tt.want {
+				t.Fatalf("expected want %v got %v", tt.want, res)
+			}
+		})
+	}
+}
+
 func TestHandler_Handle(t *testing.T) {
 	type fields struct {
 		bot            func(ctrl *gomock.Controller) TelegramAPI

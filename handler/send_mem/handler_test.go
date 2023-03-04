@@ -13,6 +13,35 @@ import (
 	"github.com/rs/zerolog"
 )
 
+func TestHandler_Support(t *testing.T) {
+	tests := []struct {
+		name string
+		args handler.BotRequest
+		want bool
+	}{
+		{
+			name: "success_send_mem",
+			args: handler.BotRequest{},
+			want: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			l := zerolog.Nop()
+			h := NewHandler(NewMockTelegramAPI(ctrl), NewMockMemRepository(ctrl), &l)
+			res := h.Support(&tt.args)
+
+			if res != tt.want {
+				t.Fatalf("expected want %v got %v", tt.want, res)
+			}
+		})
+	}
+}
+
 func TestHandler_Handle(t *testing.T) {
 	type fields struct {
 		bot           func(ctrl *gomock.Controller) TelegramAPI
