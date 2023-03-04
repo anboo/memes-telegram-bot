@@ -25,15 +25,17 @@ func (c *Collector) Import(ctx context.Context) error {
 	errg, _ := errgroup.WithContext(ctx)
 
 	for _, i := range c.importers {
-		errg.Go(func() error {
-			ch, stop := i.Import(ctx)
-
+		func(importer Importer) {
 			errg.Go(func() error {
-				return c.save(ctx, ch, stop)
-			})
+				ch, stop := importer.Import(ctx)
 
-			return nil
-		})
+				errg.Go(func() error {
+					return c.save(ctx, ch, stop)
+				})
+
+				return nil
+			})
+		}(i)
 	}
 
 	err := errg.Wait()

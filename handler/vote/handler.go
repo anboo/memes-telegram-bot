@@ -65,7 +65,10 @@ func (h Handler) Handle(ctx context.Context, request *handler.BotRequest) error 
 
 	meme, err := h.memRepository.Find(ctx, memId)
 	if err != nil {
-		h.bot.Request(tgbotapi.NewCallback(request.Update.CallbackQuery.ID, "Мем не найден"))
+		_, err = h.bot.Request(tgbotapi.NewCallback(request.Update.CallbackQuery.ID, "Мем не найден"))
+		if err != nil {
+			return errors.Wrap(err, "mem not found bot request error")
+		}
 		return nil
 	}
 
