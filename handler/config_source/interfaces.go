@@ -9,7 +9,7 @@ import (
 )
 
 type UserSourceRepository interface {
-	Create(ctx context.Context, us user_source.UserSource) error
+	Create(ctx context.Context, us *user_source.UserSource) error
 	ByUserId(ctx context.Context, userId string) (res []user_source.UserSource, err error)
 }
 

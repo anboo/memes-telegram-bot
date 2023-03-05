@@ -3,9 +3,11 @@
 CREATE TABLE users_sources (
     user_id UUID,
     source VARCHAR(25),
-    enabled BOOL,
-    UNIQUE INDEX ux_user_id_source (user_id, source)
+    enabled BOOL
 );
+-- +goose StatementEnd
+-- +goose StatementBegin
+CREATE UNIQUE INDEX ux_user_id_source ON users_sources (user_id, source);
 -- +goose StatementEnd
 
 -- +goose Down

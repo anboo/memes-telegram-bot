@@ -1,7 +1,7 @@
 package user_source
 
 type UserSource struct {
-	MemID   string
+	UserID  string
 	Source  string
 	Enabled bool
 }
@@ -10,9 +10,9 @@ func (UserSource) TableName() string {
 	return "users_sources"
 }
 
-func New(memID string, source string) *UserSource {
+func New(userID string, source string) *UserSource {
 	return &UserSource{
-		MemID:   memID,
+		UserID:  userID,
 		Source:  source,
 		Enabled: true,
 	}

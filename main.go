@@ -10,6 +10,7 @@ import (
 	"memes-bot/handler"
 	"memes-bot/handler/choose_age"
 	"memes-bot/handler/choose_sex"
+	"memes-bot/handler/config_source"
 	"memes-bot/handler/send_mem"
 	vote_handler "memes-bot/handler/vote"
 	"memes-bot/handler/welcome"
@@ -17,6 +18,7 @@ import (
 	"memes-bot/resource"
 	"memes-bot/storage/mem"
 	"memes-bot/storage/user"
+	"memes-bot/storage/user_source"
 	"memes-bot/storage/vote"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -44,12 +46,14 @@ func main() {
 	memesRepository := mem.NewRepository(res.DB)
 	usersRepository := user.NewRepository(res.DB)
 	voteRepository := vote.NewRepository(res.DB)
+	userSourceRepository := user_source.NewRepository(res.DB)
 
 	router := handler.NewRouter(
 		welcome.NewHandler(bot),
 		vote_handler.NewHandler(bot, memesRepository, voteRepository, &l),
 		choose_sex.NewHandler(bot, usersRepository),
 		choose_age.NewHandler(bot, usersRepository),
+		config_source.NewHandler(bot, userSourceRepository, res.Env.VkGroups),
 		send_mem.NewHandler(bot, memesRepository, &l),
 	)
 
