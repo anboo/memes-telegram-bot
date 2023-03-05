@@ -14,50 +14,36 @@ import (
 	vote_handler "memes-bot/handler/vote"
 	"memes-bot/handler/welcome"
 	"memes-bot/importer"
+	"memes-bot/resource"
 	"memes-bot/storage/mem"
 	"memes-bot/storage/user"
 	"memes-bot/storage/vote"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"github.com/pressly/goose/v3"
 	"github.com/rs/zerolog"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
 )
 
 func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()
 
-	//dsn := os.Getenv("DB_DSN")
-	dsn := os.Getenv("DB_DSN")
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	res, err := resource.Init()
 	if err != nil {
 		panic(err)
 	}
 
-	sqlDB, err := db.DB()
-	if err != nil {
-		panic(err)
-	}
-
-	err = goose.Up(sqlDB, "./migrations")
-	if err != nil {
-		panic(err)
-	}
-
-	bot, err := tgbotapi.NewBotAPI(os.Getenv("TELEGRAM_BOT_TOKEN"))
+	bot, err := tgbotapi.NewBotAPI(res.Env.TelegramBotToken)
 	if err != nil {
 		log.Panic(err)
 	}
 	log.Printf("Authorized on account %s", bot.Self.UserName)
 
 	l := zerolog.New(os.Stdout)
-	vk := importer.NewVkImporter(os.Getenv("VK_ACCESS_TOKEN"), &l)
+	vk := importer.NewVkImporter(res.Env.VkAccessToken, &l)
 
-	memesRepository := mem.NewRepository(db)
-	usersRepository := user.NewRepository(db)
-	voteRepository := vote.NewRepository(db)
+	memesRepository := mem.NewRepository(res.DB)
+	usersRepository := user.NewRepository(res.DB)
+	voteRepository := vote.NewRepository(res.DB)
 
 	router := handler.NewRouter(
 		welcome.NewHandler(bot),
