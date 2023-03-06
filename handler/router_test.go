@@ -76,7 +76,7 @@ func TestRouter_Handle(t *testing.T) {
 				},
 			},
 			args:    botReqA,
-			wantErr: true,
+			wantErr: false,
 		},
 	}
 
