@@ -61,10 +61,13 @@ func (r *Repository) FindRelevantMemForUser(ctx context.Context, u user.User) (M
 				 JOIN memes m on m.id = v.mem_id
 				 JOIN mutual_users mu ON mu.user_id = v.user_id
 		WHERE v.user_id != @userId
-		  AND v.vote > 0
-		  AND m.id NOT IN (
-			SELECT rmu.mem_id FROM reserved_mem_users rmu WHERE rmu.user_id = @userId
+	    AND v.vote > 0
+	    AND m.id NOT IN (
+		    SELECT rmu.mem_id FROM reserved_mem_users rmu WHERE rmu.user_id = @userId
 		)
+        AND m.source_from NOT IN (
+            SELECT source FROM users_sources WHERE user_id = @userId AND enabled = false
+        )
 		AND EXISTS (
 			SELECT v2.mem_id
 			FROM votes v2
@@ -83,11 +86,18 @@ func (r *Repository) FindRelevantMemForUser(ctx context.Context, u user.User) (M
 		return res, nil
 	}
 
-	subQuery := r.db.Raw("SELECT mem_id FROM reserved_mem_users WHERE user_id = ?", u.ID)
-	err = r.db.WithContext(ctx).Where("id NOT IN (?) AND rating > -3", subQuery).Order("RANDOM()").First(&res).Error
+	subQueryReservedMemes := r.db.Raw("SELECT mem_id FROM reserved_mem_users WHERE user_id = ?", u.ID)
+	subQueryIgnoredSources := r.db.Raw("SELECT source FROM users_sources WHERE user_id = ? AND enabled = false", u.ID)
+
+	err = r.db.WithContext(ctx).Where(
+		"id NOT IN (?) AND source_from NOT IN (?) AND rating > -3",
+		subQueryReservedMemes,
+		subQueryIgnoredSources,
+	).Order("rating DESC").First(&res).Error
 	if err != nil {
 		return Mem{}, errors.Wrap(err, "find relevant mem rep")
 	}
+
 	return res, nil
 }
 

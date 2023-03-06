@@ -14,7 +14,7 @@ type Env struct {
 
 func (r *Resource) initEnv() error {
 	r.Env = Env{
-		VkGroups: "borsch,agil_vk,fuck_humor,in.humour,dzenpub,mhk,dobriememes,dayvinchik,sciencemem",
+		VkGroups: "borsch,agil_vk,fuck_humor,in.humour,dzenpub,mhk,dobriememes,dayvinchik,sciencemem,leprazo,s_arcazm",
 	}
 	err := env.Parse(&r.Env)
 	if err != nil {
