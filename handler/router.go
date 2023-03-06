@@ -7,6 +7,7 @@ import (
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/pkg/errors"
+	"github.com/rs/zerolog"
 )
 
 type BotRequest struct {
@@ -21,10 +22,12 @@ type BotRequest struct {
 
 type Router struct {
 	handlers []Handler
+	logger   *zerolog.Logger
 }
 
-func NewRouter(handlers ...Handler) *Router {
+func NewRouter(logger *zerolog.Logger, handlers ...Handler) *Router {
 	return &Router{
+		logger:   logger,
 		handlers: handlers,
 	}
 }
@@ -37,7 +40,8 @@ func (r *Router) Handle(ctx context.Context, request BotRequest) error {
 			found = true
 			err := h.Handle(ctx, &request)
 			if err != nil {
-				return errors.Wrap(err, "handler")
+				r.logger.Err(err).Str("userId", request.User.ID).Int64("telegramId", request.FromID).Msg("handler error")
+				return nil
 			}
 			if request.StopPropagation {
 				return nil
