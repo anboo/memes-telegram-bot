@@ -7,6 +7,7 @@ mocks:
 	mockgen -source handler/send_mem/interfaces.go -destination=handler/send_mem/mocks.go  -package=send_mem
 	mockgen -source handler/vote/interfaces.go -destination=handler/vote/mocks.go  -package=vote
 	mockgen -source handler/welcome/interfaces.go -destination=handler/welcome/mocks.go  -package=welcome
+	mockgen -source handler/config_source/interfaces.go -destination=handler/config_source/mocks.go  -package=config_source
 
 test:
 	$(TEST_CMD) -tags="testing" -v -race -cover -coverprofile=coverage.out ./...
