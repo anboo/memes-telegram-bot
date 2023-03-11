@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"time"
 
 	"memes-bot/cmd"
 	"memes-bot/handler"
@@ -40,7 +41,8 @@ func main() {
 	}
 	log.Printf("Authorized on account %s", bot.Self.UserName)
 
-	l := zerolog.New(os.Stdout)
+	output := zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: time.RFC3339}
+	l := zerolog.New(output)
 	vk := importer.NewVkImporter(res.Env.VkAccessToken, &l)
 
 	memesRepository := mem.NewRepository(res.DB)
@@ -49,6 +51,7 @@ func main() {
 	userSourceRepository := user_source.NewRepository(res.DB)
 
 	router := handler.NewRouter(
+		&l,
 		welcome.NewHandler(bot),
 		vote_handler.NewHandler(bot, memesRepository, voteRepository, &l),
 		choose_sex.NewHandler(bot, usersRepository),

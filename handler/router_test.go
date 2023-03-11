@@ -9,6 +9,7 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/golang/mock/gomock"
 	"github.com/pkg/errors"
+	"github.com/rs/zerolog"
 )
 
 func TestRouter_Handle(t *testing.T) {
@@ -75,7 +76,7 @@ func TestRouter_Handle(t *testing.T) {
 				},
 			},
 			args:    botReqA,
-			wantErr: true,
+			wantErr: false,
 		},
 	}
 
@@ -84,7 +85,8 @@ func TestRouter_Handle(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 
-			h := NewRouter(tt.fields.handlers(ctrl)...)
+			l := zerolog.Nop()
+			h := NewRouter(&l, tt.fields.handlers(ctrl)...)
 			err := h.Handle(context.Background(), tt.args)
 			if err != nil != tt.wantErr {
 				t.Fatalf("expected err %v got %v", tt.wantErr, err)

@@ -53,8 +53,8 @@ func (h *Handler) Handle(ctx context.Context, request *handler.BotRequest) error
 func (h *Handler) handleButton(ctx context.Context, request *handler.BotRequest) error {
 	request.StopPropagation = true
 
-	sourceData := strings.Split(strings.TrimPrefix(request.Update.CallbackQuery.Data, callbackKeyPrefix), "_")
-	if len(sourceData) < 2 {
+	sourceData := strings.SplitN(strings.TrimPrefix(request.Update.CallbackQuery.Data, callbackKeyPrefix), "_", 3)
+	if len(sourceData) < 3 {
 		return errors.New("incorrect data")
 	}
 	messageID, action, source := sourceData[0], sourceData[1], sourceData[2]
