@@ -36,6 +36,7 @@ func TestRouter_Handle(t *testing.T) {
 			fields: fields{
 				handlers: func(ctrl *gomock.Controller) []Handler {
 					m := NewMockHandler(ctrl)
+					m.EXPECT().String().Return("")
 					m.EXPECT().Support(gomock.Any()).Return(true)
 					m.EXPECT().Handle(gomock.Any(), &botReqA)
 					return []Handler{m}
@@ -70,6 +71,7 @@ func TestRouter_Handle(t *testing.T) {
 			fields: fields{
 				handlers: func(ctrl *gomock.Controller) []Handler {
 					m := NewMockHandler(ctrl)
+					m.EXPECT().String().Return("")
 					m.EXPECT().Support(gomock.Any()).Return(true)
 					m.EXPECT().Handle(gomock.Any(), &botReqA).Return(errors.New("some_error"))
 					return []Handler{m}

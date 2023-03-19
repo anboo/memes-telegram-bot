@@ -48,6 +48,20 @@ func (mr *MockHandlerMockRecorder) Handle(arg0, arg1 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Handle", reflect.TypeOf((*MockHandler)(nil).Handle), arg0, arg1)
 }
 
+// String mocks base method.
+func (m *MockHandler) String() string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "String")
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// String indicates an expected call of String.
+func (mr *MockHandlerMockRecorder) String() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "String", reflect.TypeOf((*MockHandler)(nil).String))
+}
+
 // Support mocks base method.
 func (m *MockHandler) Support(arg0 *BotRequest) bool {
 	m.ctrl.T.Helper()
