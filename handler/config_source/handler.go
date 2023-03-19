@@ -33,6 +33,10 @@ func NewHandler(bot TelegramAPI, userSourceRepository UserSourceRepository, vkGr
 	}
 }
 
+func (h *Handler) String() string {
+	return "config_source"
+}
+
 func (h *Handler) Support(request *handler.BotRequest) bool {
 	return (request.Update.CallbackQuery != nil &&
 		strings.HasPrefix(request.Update.CallbackQuery.Data, callbackKeyPrefix)) ||

@@ -24,6 +24,10 @@ func NewHandler(bot TelegramAPI, memRepository MemRepository, log *zerolog.Logge
 	}
 }
 
+func (h *Handler) String() string {
+	return "send_mem"
+}
+
 func (h Handler) Support(r *handler.BotRequest) bool {
 	return true
 }

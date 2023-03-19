@@ -31,6 +31,10 @@ func NewHandler(bot TelegramAPI, userRepository UserRepository) *Handler {
 	}
 }
 
+func (h *Handler) String() string {
+	return "choose_age"
+}
+
 func (h *Handler) Support(request *handler.BotRequest) bool {
 	return request.User.Age == 0 ||
 		(request.Update.CallbackQuery != nil && strings.HasPrefix(request.Update.CallbackQuery.Data, ChooseAgePrefix))

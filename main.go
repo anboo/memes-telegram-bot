@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log"
+	"net/http"
 	"os"
 	"os/signal"
 	"time"
@@ -23,6 +24,7 @@ import (
 	"memes-bot/storage/vote"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/rs/zerolog"
 )
 
@@ -66,6 +68,11 @@ func main() {
 	if len(os.Args) > 1 {
 		arg = os.Args[1]
 	}
+
+	http.Handle("/metrics", promhttp.Handler())
+	go func() {
+		http.ListenAndServe(":2112", nil)
+	}()
 
 	switch arg {
 	case "import_memes":

@@ -39,6 +39,10 @@ func NewHandler(
 	}
 }
 
+func (h *Handler) String() string {
+	return "vote"
+}
+
 func (h Handler) Support(request *handler.BotRequest) bool {
 	return request.Update.CallbackQuery != nil && (strings.HasPrefix(request.Update.CallbackQuery.Data, UpPrefix) ||
 		strings.HasPrefix(request.Update.CallbackQuery.Data, DownPrefix) ||

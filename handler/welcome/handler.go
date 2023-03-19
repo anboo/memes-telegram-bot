@@ -17,6 +17,10 @@ func NewHandler(bot TelegramAPI) *Handler {
 	return &Handler{bot: bot}
 }
 
+func (h *Handler) String() string {
+	return "welcome"
+}
+
 func (h Handler) Support(r *handler.BotRequest) bool {
 	return r.IsNewUser
 }
