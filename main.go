@@ -71,7 +71,10 @@ func main() {
 
 	http.Handle("/metrics", promhttp.Handler())
 	go func() {
-		http.ListenAndServe(":2112", nil)
+		err := http.ListenAndServe(":2112", nil)
+		if err != nil {
+			l.Fatal().Err(err).Msg("cannot start monitoring server")
+		}
 	}()
 
 	switch arg {
