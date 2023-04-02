@@ -42,39 +42,49 @@ func (h *Handler) Support(request *handler.BotRequest) bool {
 func (h *Handler) Handle(ctx context.Context, request *handler.BotRequest) error {
 	switch {
 	case request.Update.CallbackQuery != nil && strings.HasPrefix(request.Update.CallbackQuery.Data, ChooseSexPrefix):
-		sex := strings.TrimLeft(request.Update.CallbackQuery.Data, ChooseSexPrefix)
-		if sex != SexMen && sex != SexGirl && sex != SexFish {
-			return errors.New("incorrect sex")
-		}
-
-		request.User.Sex = sex
-		_, _, err := h.userRepository.Upsert(ctx, request.User)
-		if err != nil {
-			return errors.Wrap(err, "try set new sex")
-		}
-
-		_, err = h.bot.Request(tgbotapi.NewCallback(request.Update.CallbackQuery.ID, "Спасибо"))
-		if err != nil {
-			return errors.Wrap(err, "try response callback choose sex")
-		}
+		return h.handleClick(ctx, request)
 	case request.User.Sex == "":
-		msg := tgbotapi.NewMessage(request.FromID, "Выберите ваш пол")
-		msg.ReplyMarkup = tgbotapi.NewInlineKeyboardMarkup(
-			tgbotapi.NewInlineKeyboardRow(
-				tgbotapi.NewInlineKeyboardButtonData("👱🏼‍♂️Мужчина", ChooseSexPrefix+SexMen),
-				tgbotapi.NewInlineKeyboardButtonData("👱🏼‍♀️Девушка", ChooseSexPrefix+SexGirl),
-				tgbotapi.NewInlineKeyboardButtonData("🐟 My son?? Where is my son??", ChooseSexPrefix+SexFish),
-			),
-		)
-		_, err := h.bot.Send(msg)
-		if err != nil {
-			return errors.Wrap(err, "send chose sex message")
-		}
-
-		request.StopPropagation = true
+		return h.handleShowMenu(ctx, request)
 	default:
 		return errors.New("incorrect handle choose sex")
 	}
+}
+
+func (h *Handler) handleClick(ctx context.Context, request *handler.BotRequest) error {
+	sex := strings.TrimLeft(request.Update.CallbackQuery.Data, ChooseSexPrefix)
+	if sex != SexMen && sex != SexGirl && sex != SexFish {
+		return errors.New("incorrect sex")
+	}
+
+	request.User.Sex = sex
+	_, _, err := h.userRepository.Upsert(ctx, request.User)
+	if err != nil {
+		return errors.Wrap(err, "try set new sex")
+	}
+
+	_, err = h.bot.Request(tgbotapi.NewCallback(request.Update.CallbackQuery.ID, "Спасибо"))
+	if err != nil {
+		return errors.Wrap(err, "try response callback choose sex")
+	}
+
+	return nil
+}
+
+func (h *Handler) handleShowMenu(ctx context.Context, request *handler.BotRequest) error {
+	msg := tgbotapi.NewMessage(request.FromID, "Выберите ваш пол")
+	msg.ReplyMarkup = tgbotapi.NewInlineKeyboardMarkup(
+		tgbotapi.NewInlineKeyboardRow(
+			tgbotapi.NewInlineKeyboardButtonData("👱🏼‍♂️Мужчина", ChooseSexPrefix+SexMen),
+			tgbotapi.NewInlineKeyboardButtonData("👱🏼‍♀️Девушка", ChooseSexPrefix+SexGirl),
+			tgbotapi.NewInlineKeyboardButtonData("🐟 My son?? Where is my son??", ChooseSexPrefix+SexFish),
+		),
+	)
+	_, err := h.bot.Send(msg)
+	if err != nil {
+		return errors.Wrap(err, "send chose sex message")
+	}
+
+	request.StopPropagation = true
 
 	return nil
 }
